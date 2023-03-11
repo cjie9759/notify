@@ -14,7 +14,7 @@ func NewNotify(msgtype string, webhook string) *WXRNotify {
 	return &WXRNotify{
 		msgtype:  msgtype,
 		msg_data: d,
-		config:   Cfg{webhook: webhook},
+		config:   Cfg{Webhook: webhook},
 	}
 }
 
@@ -25,7 +25,7 @@ func (w *WXRNotify) Send(msg string) error {
 	w.msg_data[w.msgtype] = map[string]string{"content": msg}
 
 	_, err := req.SetBodyJsonMarshal(w.msg_data).
-		Post(w.config.webhook)
+		Post(w.config.Webhook)
 	return err
 }
 
@@ -35,5 +35,5 @@ const (
 )
 
 type Cfg struct {
-	webhook string
+	Webhook string
 }
