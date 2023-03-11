@@ -1,18 +1,18 @@
-package wxroboot_test
+package wxrobot_test
 
 import (
 	"testing"
 
-	"github.com/cjie9759/notify/wxroboot"
+	"github.com/cjie9759/notify/wxrobot"
 )
 
 var webhook = ""
 
 func TestWXSend(t *testing.T) {
-	n := wxroboot.NewNotify(wxroboot.Msgtype_text, webhook)
+	n := wxrobot.NewNotify(wxrobot.Msgtype_text, webhook)
 	n.Send("txtx test")
 
-	n1 := wxroboot.NewNotify(wxroboot.Msgtype_markdown, webhook)
+	n1 := wxrobot.NewNotify(wxrobot.Msgtype_markdown, webhook)
 	n1.Send(`
 	# md test
 	**bold**
