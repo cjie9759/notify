@@ -26,6 +26,7 @@ var (
 )
 
 func TestXxx(t *testing.T) {
+	// os.Exit(1)
 	notify.NewNotifyGrop([]notify.Notify{
 		wxrobot.NewNotify(wxrobot.Msgtype_text, webhook),
 		mail.NewMail(mail.Cfg{User: MAIL_USER, Pwd: MAIL_PWD, From: MAIL_FROM, To: []string{MAIL_TEST_TO}, Sub: "ckie onen mail test"}),
