@@ -9,10 +9,10 @@ import (
 var webhook = ""
 
 func TestWXSend(t *testing.T) {
-	n := wxrobot.NewNotify(wxrobot.Msgtype_text, webhook)
+	n := wxrobot.NewNotify(wxrobot.Msgtype_text, webhook, true)
 	n.Send("txtx test")
 
-	n1 := wxrobot.NewNotify(wxrobot.Msgtype_markdown, webhook)
+	n1 := wxrobot.NewNotify(wxrobot.Msgtype_markdown, webhook, true)
 	n1.Send(`
 	# md test
 	**bold**

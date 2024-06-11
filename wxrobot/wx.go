@@ -9,8 +9,9 @@ type WXRNotify struct {
 	msg_data map[string]any
 }
 
-func NewNotify(msgtype string, webhook string) *WXRNotify {
+func NewNotify(msgtype string, webhook string, is_test bool) *WXRNotify {
 	d := make(map[string]any, 3)
+	req.DevMode()
 	return &WXRNotify{
 		msgtype:  msgtype,
 		msg_data: d,
