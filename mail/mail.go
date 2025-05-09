@@ -1,16 +1,18 @@
 package mail
 
 import (
+	"bytes"
 	"crypto/tls"
 	"fmt"
+	"log"
 	"net"
 	"net/smtp"
 	"strings"
 )
 
 type Mail struct {
-	msg    string
-	config Cfg
+	// msg    string
+	cfg Cfg
 }
 
 type Cfg struct {
@@ -19,57 +21,64 @@ type Cfg struct {
 	From string
 	To   []string
 	Sub  string
+
+	STMPHOST string
+	STMPPORT int
 }
 
-func (M *Mail) Send(Body string) error {
-	M.msg = Body
-	return M.send()
+var defaultCfg = Cfg{
+	STMPHOST: "smtp.exmail.qq.com",
+	STMPPORT: 465,
 }
 
 func NewMail(config Cfg) *Mail {
-	return &Mail{config: config}
-}
 
-func (M *Mail) send() error {
-	host := "smtp.exmail.qq.com"
-	port := 465
-	email := M.config.User
-	pwd := M.config.Pwd
-	toEmail := strings.Join(M.config.To, ",") // 目标地址
+	m := &Mail{cfg: config}
 
-	header := make(map[string]string)
-
-	header["From"] = M.config.From + "<" + email + ">"
-	header["To"] = toEmail
-	header["Subject"] = M.config.Sub
-	header["Content-Type"] = "text/plain;chartset=UTF-8"
-
-	// 换行替换
-	body := M.msg
-	// body := strings.ReplaceAll(M.Body, "\n", "<\br>")
-
-	message := ""
-
-	for k, v := range header {
-		message += fmt.Sprintf("%s:%s\r\n", k, v)
+	if m.cfg.STMPHOST == "" {
+		m.cfg.STMPHOST = defaultCfg.STMPHOST
+	}
+	if m.cfg.STMPPORT == 0 {
+		m.cfg.STMPPORT = defaultCfg.STMPPORT
 	}
 
-	message += "\r\n" + body
+	return m
+}
+
+// func (M *Mail) Send(Body string) error {
+// 	M.msg = Body
+// 	return M.send()
+// }
+
+func (M *Mail) Send(Body string) error {
+
+	// 换行替换
+	// body := M.msg
+	// body := strings.ReplaceAll(M.Body, "\n", "<\br>")
+
+	msgBuffer := bytes.Buffer{}
+	// bytes.NewBuffer([]byte(fmt.Sprintf()))
+	msgBuffer.WriteString(fmt.Sprintf("From:%s<%s>\r\n", M.cfg.From, M.cfg.User))
+	msgBuffer.WriteString(fmt.Sprintf("To:%s\r\n", strings.Join(M.cfg.To, ",")))
+	msgBuffer.WriteString(fmt.Sprintf("Sub:%s\r\n", M.cfg.Sub))
+	msgBuffer.WriteString("Content-Type:text/plain;chartset=UTF-8\r\n\r\n")
+	msgBuffer.WriteString(Body)
 
 	auth := smtp.PlainAuth(
 		"",
-		email,
-		pwd,
-		host,
+		M.cfg.User,
+		M.cfg.Pwd,
+		M.cfg.STMPHOST,
 	)
 
 	err := M.sendMailUsingTLS(
-		fmt.Sprintf("%s:%d", host, port),
+		fmt.Sprintf("%s:%d", M.cfg.STMPHOST, M.cfg.STMPPORT),
 		auth,
-		email,
-		M.config.To,
-		[]byte(message),
+		M.cfg.User,
+		M.cfg.To,
+		msgBuffer.Bytes(),
 	)
+	// msgBuffer.Reset()
 	return err
 	// if err != nil {
 	// 	panic(err)
@@ -98,7 +107,7 @@ func (M *Mail) sendMailUsingTLS(addr string, auth smtp.Auth, from string,
 	//create smtp client
 	c, err := M.dial(addr)
 	if err != nil {
-		// log.Println("Create smpt client error:", err)
+		log.Println("Create smpt client error:", err)
 		return err
 	}
 	defer c.Close()
@@ -106,7 +115,7 @@ func (M *Mail) sendMailUsingTLS(addr string, auth smtp.Auth, from string,
 	if auth != nil {
 		if ok, _ := c.Extension("AUTH"); ok {
 			if err = c.Auth(auth); err != nil {
-				// log.Println("Error during AUTH", err)
+				log.Println("Error during AUTH", err)
 				return err
 			}
 		}
