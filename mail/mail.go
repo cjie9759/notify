@@ -60,7 +60,7 @@ func (M *Mail) Send(Body string) error {
 	// bytes.NewBuffer([]byte(fmt.Sprintf()))
 	msgBuffer.WriteString(fmt.Sprintf("From:%s<%s>\r\n", M.cfg.From, M.cfg.User))
 	msgBuffer.WriteString(fmt.Sprintf("To:%s\r\n", strings.Join(M.cfg.To, ",")))
-	msgBuffer.WriteString(fmt.Sprintf("Sub:%s\r\n", M.cfg.Sub))
+	msgBuffer.WriteString(fmt.Sprintf("Subject:%s\r\n", M.cfg.Sub))
 	msgBuffer.WriteString("Content-Type:text/plain;chartset=UTF-8\r\n\r\n")
 	msgBuffer.WriteString(Body)
 
